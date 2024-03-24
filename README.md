@@ -1,4 +1,4 @@
-﻿# LRecursiveLFactorRM
+﻿# Left Recursive and Left Factor Remover (LRecursiveLFactorRM)
 
 ข้อ 1 ตรวจสอบ/กำจัด left recursive และ left factor
 
