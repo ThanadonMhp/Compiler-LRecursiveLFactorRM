@@ -69,6 +69,8 @@ int main() {
         grammar[nonTerminal].push_back(production);
     }
 
+    cout << endl;
+
     cout << "Grammar after removing left recursion:" << endl;
     for (auto nonTerm : grammar) {
         removeLeftRecursion(nonTerm.first, nonTerm.second);
