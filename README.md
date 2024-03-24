@@ -1,6 +1,6 @@
 ﻿# LRecursiveLFactorRM
 
-ข้อ 2 Predictive parsing
+ข้อ 1 ตรวจสอบ/กำจัด left recursive และ left factor
 
 6410450982 ธนดล มหาพรรณ   
 6410451415 ศรัณย์ วงษ์คำ   
