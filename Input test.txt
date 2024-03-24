@@ -1,0 +1,5 @@
+Input test:
+stmt -> if-stmt | other
+if-stmt -> if (exp) stmt else-part
+else-part -> else stmt | epsilon    
+exp -> 0 | 1
