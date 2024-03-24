@@ -74,6 +74,8 @@ int main() {
         removeLeftRecursion(nonTerm.first, nonTerm.second);
     }
 
+    cout << endl;
+
     cout << "Grammar after removing left factor:" << endl;
     for (auto nonTerm : grammar) {
         removeLeftFactor(nonTerm.first, nonTerm.second);
