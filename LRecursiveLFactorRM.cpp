@@ -1,86 +1,154 @@
 #include <iostream>
-#include <string>
 #include <vector>
-#include <map>
-#include <set>
+#include <string>
 
 using namespace std;
 
-// Function to remove left recursion from a production
-void removeLeftRecursion(string nonTerminal, vector<string>& productions) {
-    string alpha, beta;
-    vector<string> newProductions;
-
-    for (string prod : productions) {
-        if (prod[0] == nonTerminal[0]) {
-            newProductions.push_back(prod.substr(1) + nonTerminal + "'");
-        } else {
-            newProductions.push_back(prod + nonTerminal + "'");
-        }
-    }
-
-    alpha = newProductions[0];
-    for (size_t i = 1; i < newProductions.size(); ++i) {
-        beta += newProductions[i];
-        if (i != newProductions.size() - 1) {
-            beta += "|";
-        }
-    }
-
-    cout << nonTerminal << " -> " << beta << endl;
-    cout << nonTerminal << "' -> " << alpha << nonTerminal << "'|" << "epsilon" << endl;
+// Function to check if a given symbol is non-terminal
+bool isNonTerminal(char symbol) {
+    return symbol >= 'A' && symbol <= 'Z';
 }
 
-// Function to remove left factoring from a production
-void removeLeftFactor(string nonTerminal, vector<string>& productions) {
-    map<char, vector<string>> groups;
-    for (string prod : productions) {
-        groups[prod[0]].push_back(prod.substr(1));
-    }
+// Function to remove left recursion from a production
+vector<string> removeLeftRecursion(string production) {
+    vector<string> newProductions;
+    char nonTerminal = production[0];
+    string restOfProduction = production.substr(3);
+    vector<string> alpha, beta;
 
-    for (auto group : groups) {
-        if (group.second.size() > 1) {
-            string factor = group.second[0];
-            cout << nonTerminal << " -> " << group.first << factor << nonTerminal << "'" << endl;
-            cout << nonTerminal << "' -> ";
-            for (size_t i = 1; i < group.second.size(); ++i) {
-                cout << group.second[i] << nonTerminal << "'|";
-            }
-            cout << "epsilon" << endl;
+    for (int i = 0; i < restOfProduction.length(); i++) {
+        string currentProduction = "";
+        currentProduction += restOfProduction[i];
+
+        if (i + 1 < restOfProduction.length() && restOfProduction[i + 1] == '|') {
+            alpha.push_back(currentProduction);
+            i++;
         } else {
-            cout << nonTerminal << " -> " << group.first << group.second[0] << "|" << "epsilon" << endl;
+            beta.push_back(currentProduction);
         }
     }
+
+    if (alpha.empty()) {
+        newProductions.push_back(production);
+    } else {
+        string newNonTerminal = "";
+        newNonTerminal += nonTerminal;
+        newNonTerminal += "'";
+        newProductions.push_back(newNonTerminal + " -> " + beta[0] + newNonTerminal);
+
+        for (int i = 0; i < alpha.size(); i++) {
+            newProductions.push_back(nonTerminal + " -> " + alpha[i] + newNonTerminal);
+        }
+
+        newProductions.push_back(newNonTerminal + " -> epsilon");
+
+        for (int i = 1; i < beta.size(); i++) {
+            newProductions.push_back(newNonTerminal + " -> " + beta[i] + newNonTerminal);
+        }
+    }
+
+    return newProductions;
+}
+
+// Function to remove left factor from a production
+vector<string> removeLeftFactor(string production) {
+    vector<string> newProductions;
+    char nonTerminal = production[0];
+    string restOfProduction = production.substr(3);
+    vector<string> commonPrefixes;
+
+    for (int i = 0; i < restOfProduction.length(); i++) {
+        string currentProduction = "";
+        currentProduction += restOfProduction[i];
+
+        if (i + 1 < restOfProduction.length() && restOfProduction[i + 1] == '|') {
+            commonPrefixes.push_back(currentProduction);
+            i++;
+        } else {
+            commonPrefixes.push_back(currentProduction);
+            break;
+        }
+    }
+
+    if (commonPrefixes.size() == 1) {
+        newProductions.push_back(production);
+    } else {
+        string newNonTerminal = "";
+        newNonTerminal += nonTerminal;
+        newNonTerminal += "'";
+        newProductions.push_back(nonTerminal + " -> " + commonPrefixes[0] + newNonTerminal);
+
+        for (int i = 1; i < commonPrefixes.size(); i++) {
+            newProductions.push_back(newNonTerminal + " -> " + commonPrefixes[i] + newNonTerminal);
+        }
+
+        for (int i = commonPrefixes.size(); i < restOfProduction.length(); i++) {
+            string currentProduction = "";
+            currentProduction += restOfProduction[i];
+
+            if (i + 1 < restOfProduction.length() && restOfProduction[i + 1] == '|') {
+                newProductions.push_back(nonTerminal + " -> " + currentProduction);
+                i++;
+            } else {
+                newProductions.push_back(nonTerminal + " -> " + currentProduction);
+                break;
+            }
+        }
+    }
+
+    return newProductions;
 }
 
 int main() {
-    map<string, vector<string>> grammar;
-    int numProductions;
-    string nonTerminal, production;
+    // example Grammar without left recursion and left factor
+    // vector<string> inputGrammar = {
+    //     "stmt -> if-stmt",
+    //     "stmt -> other",
+    //     "if-stmt -> if (exp) stmt else-part",
+    //     "else-part -> else stmt",
+    //     "else-part -> epsilon",
+    //     "exp -> 0",
+    //     "exp -> 1"
+    // };
 
-    cout << "Enter the number of productions: ";
-    cin >> numProductions;
+    // example Grammar with left recursion and left factor
+    // vector<string> inputGrammar = {
+    //     "E -> E + T | T",
+    //     "T -> T * F | F",
+    //     "F -> ( E ) | id"
+    // };
+    
 
-    cout << "Enter the productions in the form 'NonTerminal -> Production':" << endl;
-    for (int i = 0; i < numProductions; ++i) {
-        cin >> nonTerminal;
-        cin.ignore();
-        getline(cin, production);
-        grammar[nonTerminal].push_back(production);
+    vector<string> inputGrammar;
+    cout << "Input grammar :   (type 'end' to finish)" << endl; 
+
+    string input;
+    
+    while (getline(cin, input)) {
+        if (input == "end") {
+            break;
+        }
+        inputGrammar.push_back(input);
+    }
+    
+    vector<string> outputGrammar;
+
+    for (string production : inputGrammar) {
+        if (isNonTerminal(production[0])) {
+            vector<string> newProductions = removeLeftRecursion(production);
+
+            for (string newProduction : newProductions) {
+                outputGrammar.push_back(newProduction);
+            }
+        } else {
+            outputGrammar.push_back(production);
+        }
     }
 
-    cout << endl;
+    cout << "Grammar without left recursion and left factor:" << endl;
 
-    cout << "Grammar after removing left recursion:" << endl;
-    for (auto nonTerm : grammar) {
-        removeLeftRecursion(nonTerm.first, nonTerm.second);
-    }
-
-    cout << endl;
-
-    cout << "Grammar after removing left factor:" << endl;
-    for (auto nonTerm : grammar) {
-        removeLeftFactor(nonTerm.first, nonTerm.second);
+    for (string production : outputGrammar) {
+        cout << production << endl;
     }
 
     return 0;

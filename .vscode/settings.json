@@ -2,6 +2,8 @@
     "nuxt.isNuxtApp": false,
     "files.associations": {
         "iostream": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "ostream": "cpp",
+        "vector": "cpp"
     }
 }
